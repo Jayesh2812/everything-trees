@@ -18,3 +18,22 @@ class TreeNode:
             
     def swap(self,other):
         self.val, other.val = other.val, self.val
+    
+    def __eq__(self, object) -> bool:
+        if self and object:
+            return self.val == object.val
+        return False
+        
+    def __getitem__(self, side):
+        if side == "right" or side == 1:
+            return self.right
+        elif side == "left" or side == -1:
+            return self.left
+        raise KeyError
+    
+    def __setitem__(self, side, data):
+        if side == "right" or side == 1:
+            self.right = data
+        elif side == "left" or side == -1:
+            self.left = data
+        raise KeyError

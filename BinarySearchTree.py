@@ -48,15 +48,15 @@ class BST:
         """
             Delete the node specified  value if present
         """
+
         if data not in self:
             return
         # Locate the necessary node
         curr = self.find(data)
 
-        print(curr)
 
         # If node is leaf node
-            # get the parent and set the parent's pointer current node as None
+            # get the parent and set the parent's pointer to current node as None
         if curr.is_leaf():
             parent = self.get_parent(curr)
             if parent :
@@ -69,102 +69,84 @@ class BST:
                         parent.right = None
             else:
                 self.root = None
-        # If node is not a leaf node
-            # if current node is root node and does not have a inorder successor
-                # set root as root->left
-                # exit
-            # if current node does have a inorder successor
-                # set parent(current) -> right = current -> left
-                # exit
-            # find the inorder successor of current node
-                # find the parent of the inorder successor 
-                # if we get a parent 
-                    # set the parent's pointer to successor node as None
-                # Swap successor and current node
-                # delete current
-        else:
-            inorder = self.inorderTraversal()
+        # Else if the node has both childs
+            # find inorder successor of the node 
+            # replace the the node to be deleted with inorder successor
+            # delete the node to be deleted
 
-            if curr.val == self.root.val and not self.root.right:
-                self.root = self.root.left
-                del curr
-                return
-            if not curr.right:
-                parent = self.get_parent(curr)
-                parent.left = curr.left
-                return
-            successor = self.find(inorder[inorder.index(curr.val) + 1]) 
-            parent = self.get_parent(successor)
-            print(parent, successor, curr)
 
-            if parent:
-                if parent.left:
-                    if parent.left.val == successor.val:
-                        parent.left = None
+
+        elif curr.left and curr.right :
+
+            successor = self.get_successor(curr)
+            successor_parent = self.get_parent(successor)
+
+            # if successor_parent is the node to be deleted then
+            if successor.is_leaf():
+                if successor_parent.left == successor:
+                    successor_parent.left = None
+                else:
+                    successor_parent.right = None
+                curr.swap(successor)
+
+
+            elif successor_parent == curr:
+                successor.left = curr.left
+                curr.left = None
+                if curr == self.root:
+                    self.root = successor
+                else:
+                    print(self.get_parent(curr))
+                    self.get_parent(curr).right = successor
                 
-                if parent.right:
-                    if parent.right.val == successor.val:
-                        parent.right = None
-            
-            else:
-                self.root = curr
-            curr.swap(successor)  
 
+            
+        # The node to be deleted has a single child
+        else : 
+            parent = self.get_parent(curr)
+            child = curr.right if curr.right else curr.left
+            if parent :
+                if parent.left == curr:
+                    parent.left = child
+                else :
+                    parent.right = child
+            else :
+                self.root = child
         del curr
-        print(self.inorderTraversal())
-        print(self.preorderTraversal())
+        self.height = BST.getHeight(self.root)
+
 
     def get_successor(self, node):
-        # Find the inorder sucessor of the given node
-        # If the inorder successor exists 
-            # If the successor is leaf node return the successor 
-            # If the successor is not a leaf goto step 1
-        # Else find the preorder successor
-            # If the preorder successor exists 
-                # If the successor is leaf node return the successor 
-                # If the successor is not a leaf goto step 3
-        # Else return None
-
+        """ 
+            Get the inorder successor of the given node
+        """
         if node.val not in self:
             return None
         inorder = self.inorderTraversal()
+        print(inorder)
         try :
             curr_index = inorder.index(node.val)
             curr = self.find(inorder[curr_index + 1])
             return curr
         except IndexError:
-            pass
-        
-        preorder = self.preorderTraversal()
-        try :
-            curr_index = preorder.index(node.val)
-            curr = self.find(preorder[curr_index + 1])
-            return curr
-        except IndexError:
-            pass
-        return None
+            return None
             
-        
-
-
-
     def get_parent(self, node):
         """
             Returns the parent node if found else return None
         """
-        if node.val not in myBST:
+        if not node or node.val not in self:
             return
         path = self.path_to(node)
         if len(path) < 2:
             return None
         return path[-2]
 
-
     def get_grandparent(self, node):
         """
             Returns the grandparent node if found else return None
         """
-        if node not in myBST:
+        if node not in self:
             return
         path = self.path_to(node)
         if len(path) < 3:
@@ -175,6 +157,11 @@ class BST:
         """
             Check if any node in the tree has the specified value
         """
+        if not isinstance(data, int):
+            if not isinstance(data, Node):
+                return False
+            data = data.val
+
         curr = self.root
         while curr:
             if curr.val < data:
@@ -190,7 +177,7 @@ class BST:
             Returns node metadata of given data value
         """
         if data not in self:
-            return 
+            return None
         curr = self.root
         while curr:
             if curr.val < data:
@@ -242,10 +229,10 @@ class BST:
             # print(event.button)
             x = int(round(event.xdata))
             y = int(round(event.ydata))
-            p = dict(zip(pos.values(),pos.keys()))[(x,y)]
                 # print(f'x={x}, y={y}' )
-            if event.dblclick:
-                try:
+            try:
+                p = dict(zip(pos.values(),pos.keys()))[(x,y)]
+                if event.dblclick:
                     self.delete(p)
 
                     colors = ["white" for i in range(len(pos))]
@@ -253,14 +240,18 @@ class BST:
 
                     nx.draw(G,pos,node_size=700, node_color=colors,edgecolors="#000000", 
                     linewidths=1)
-                except:
-                    # data = int(input())
-                    pass
-                    # self.insert(data)
+                    
+
+                else:
+                    print(p,self.get_successor(self.find(p)))
+                    return
                 fig.canvas.draw()
                 self.show_tree()
-            else:
-                print(p,self.get_successor(self.find(p)))
+            except KeyError:
+                # data = int(input("Enter Data"))
+                pass
+                # self.insert(data)
+            
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
 #################################################
@@ -292,7 +283,7 @@ class BST:
         pos = {i : pos[i] for i in pos if i!="X"}
 
         edges = []
-        for i in range(2**self.height - 1):
+        for i in range(int(2**self.height) - 1):
             n = tree[i]
             i+=1
             l = tree[2 * (i) - 1]
@@ -334,7 +325,7 @@ class BST:
         while Q:
             curr = Q.pop(0)
             if curr is not None:
-                LoT.append((str(curr.val), curr.level))
+                LoT.append((curr.val, curr.level))
                 if curr.left or curr.right:
                     Q.append(curr.left)
                     Q.append(curr.right)
@@ -452,20 +443,14 @@ if __name__ == "__main__":
 
     a=[4,2,1,3,7,6,8]
     # a=[4,1,3,2]
-    a=[random.randint(1, 20) for i in range(10)]
-    a=[4,1,2,3,5,6,7]
+    a=[random.randint(1, 20) for _ in range(10)]
+    a=[2,1,6,4,7,8,5]
     myBST = BST(a)
     print("Level Order Traversal :",myBST.levelOrderTraversal())
     print("Height :", myBST.height)
     print("Inorder Traversal :",myBST.inorderTraversal())
     print("Preorder Traversal :",myBST.preorderTraversal())
     print("Postorder Traversal :",myBST.postorderTraversal())
-    # print(myBST.find(3))
-    # print(myBST.path_to(myBST.find(3)))
-    # myBST.show_tree()
-    # myBST.delete(4)
-    # print(myBST.get_parent(myBST.find(2)))
-    # print(myBST.get_grandparent(myBST.find(1)))
-    print(myBST.get_successor(myBST.find(5)))
-    # print()
+    print(1 in myBST)
+    print(myBST.find(5) in myBST)
     myBST.show_tree()
