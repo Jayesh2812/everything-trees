@@ -2,7 +2,7 @@ from BinarySearchTree import BST
 
 
 class AVL(BST):
-    def __init__(self,args=None, balancing_factor =2):
+    def __init__(self,args=None, balancing_factor =1):
 
         self.k = balancing_factor
         super().__init__(args)
@@ -102,8 +102,10 @@ if __name__ == "__main__":
     a=[1,2,3,4]
     a=range(10)
     a=[random.randint(1, 20) for _ in range(10)]
-    avl = AVL(a,1)
-    print(avl.levelOrderTraversal())
-    avl.show_tree()
+    a=[21,26,30,9,4,14,28,18,15,10,2,3,7]
+    avl = AVL()
+    for i in a:
+        avl.insert(i)
+        avl.show_tree()
 
     
