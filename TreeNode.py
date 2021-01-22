@@ -3,7 +3,7 @@ class TreeNode:
         self.left = None
         self.right = None
         self.val = data
-        self.level = None
+        self.height = -1
 
     def __str__(self):
         return f"<TreeNode {str(self.val)}>"
@@ -56,3 +56,27 @@ class TreeNode:
 
     def __hash__(self):
         return self.val
+
+    def left_rot(self):
+
+        y = self.right
+        x = self.right.right
+        self.swap(y)
+        t = self.left
+        self.right = x
+        self.left = y
+        y.right = y.left
+        y.left = t
+
+
+    def right_rot(self):
+        y = self.left
+        x = self.left.left
+
+        self.swap(y)
+        t = self.right
+        self.left = x
+        self.right = y
+        y.left = y.right
+        y.right = t
+

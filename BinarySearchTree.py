@@ -1,4 +1,4 @@
-import random
+
 
 
 from TreeNode import TreeNode as Node
@@ -6,9 +6,10 @@ class BST:
     """
         Binary Search tree implementation 
     """
-    def __init__(self,args=None):
+    def __init__(self, args=None, Node=Node):
         self.root = None
         self.height = -1
+        self.Node = Node
         if args:
             for i in args:
                 self.insert(i)
@@ -16,18 +17,20 @@ class BST:
     def __str__(self):
         return f"<BST with root value {self.root}>"
 
+    @property
+    def title(self):
+        return f"Height : {self.height}"
+
     def  insert(self, data):
         '''
             Insert into the BST, duplicate values are ignored
         '''
-        new_node = Node(data)
-        new_node.level = 0
+        new_node = self.Node(data)
         if self.root is None:
             self.root = new_node
         else:
             curr = self.root
             while True:
-                new_node.level+=1
                 if curr.val > new_node.val:
                     if curr.left is None:
                         curr.left = new_node
@@ -211,22 +214,16 @@ class BST:
     def getHeight(root):
         if root is None:
             return -1
-        curr = root
-        return 1 + max(BST.getHeight(curr.left), BST.getHeight(curr.right))
+        root.height = 1 + max(BST.getHeight(root.left), BST.getHeight(root.right))
+
+        return root.height
 
     def levelOrderTraversal(self):
         '''
             Returns a array of tuples , each containing node's value and its depth
             in Level order Fashion
-
-
         '''
-        """
-            Insert root node into queue Q
-            While Q is not empty
-                Dequeue element perform actions and enqueue its left and right nodes
-                if any of them exists(not None) else ignore
-        """
+
 
         if self.root is None:
             return []
@@ -235,7 +232,7 @@ class BST:
         while Q:
             curr = Q.pop(0)
             if curr is not None:
-                LoT.append((curr.val, curr.level))
+                LoT.append((curr.val, curr.height))
                 if curr.left or curr.right:
                     Q.append(curr.left)
                     Q.append(curr.right)
@@ -425,17 +422,18 @@ class BST:
         pos, edges = self.get_pos_n_edges()
         import matplotlib.pyplot as plt
         # Close Previous plot windows
-        plt.close()
+        # plt.close()
         fig, ax= plt.subplots()
+
+        # Matplotlib Event Listener for quick deletion and insertion on the go
         fig.canvas.mpl_connect('button_press_event', lambda e:self.__onclick__(e, pos))
         
-
         # Get maximum drawing Area without clipping the nodes drawn.
         plt.subplots_adjust(left=0.03, right=0.97, top=0.85, bottom=0)
 
-        plt.title(f'Height : {self.height}')
+        plt.title(self.title)
         self.__draw__(pos, edges)
-        plt.show()
+        plt.figure()
         
     def __draw__(self, pos, edges):
         import networkx as nx   
@@ -449,7 +447,7 @@ class BST:
                 node_color="#ffffff",edgecolors="#000000", 
                 linewidths=1)
 
-        nx.draw_networkx_edges(T, pos, edges, min_target_margin=13)
+        nx.draw_networkx_edges(T, pos, edges, min_target_margin=13, min_source_margin=13)
         nx.draw_networkx_labels(T, pos, { p : p.val for p in pos})
 
     def __onclick__(self, event, pos):
@@ -498,20 +496,3 @@ class BST:
         
         return operation == 'Delete'
             
-
-
-if __name__ == "__main__":
-
-    a=[4,2,1,3,7,6,8]
-    # a=[4,1,3,2]
-    a=[random.randint(1, 20) for _ in range(10)]
-    # a=[2,1,6,4,7,8,5]
-    myBST = BST(a)
-    print("Level Order Traversal :",myBST.levelOrderTraversal())
-    print("Height :", myBST.height)
-    print("Inorder Traversal :",myBST.inorderTraversal())
-    print("Preorder Traversal :",myBST.preorderTraversal())
-    print("Postorder Traversal :",myBST.postorderTraversal())
-    myBST.delete(100)
-    myBST.show_tree()
-    myBST.get_pos_n_edges()

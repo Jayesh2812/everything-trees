@@ -2,43 +2,95 @@ from BinarySearchTree import BST
 
 
 class AVL(BST):
+    """
+    AVL trees are self balancing BSTs that balace themselves by performing
+    some rotations on the nodes.
+
+    All operations like searching, min, max, etc. are performed in O(logn) or O(self.h)
+    time complexity.
+    """
     def __init__(self,args=None, balancing_factor =1):
 
         self.k = balancing_factor
+        self.rotations = 0
         super().__init__(args)
+
+    @property
+    def title(self):
+        return f"Height : {self.height}     Rotations : {self.rotations}"
 
     def insert(self,data):
         new_node = super().insert(data)
         self.balance(new_node)
 
     def balance(self, curr):
-        print(curr) 
+        """
+        Balancing the AVL tree is done by calculating the balancing factors for 
+        each node from the bottom up starting from the given node. By doing this we 
+        find a critical node(z).
+
+        Balance factor of a node is absolute difference of height of node's 
+        right subtree and left subtree
+
+        A node is critical node(z) if its balance factor is greater than 'self.k'
+        In such case we take two nodes we encountered before 'z' from the path up to 'z'
+        the child of 'z' is 'y' and child of 'y' is 'x'
+        
+        The position of these three nodes give us four combinations.
+        1)'y' is LEFT child of 'z' and 'x' is LEFT child of 'y'
+            - RIGHT ROTATE 'z' 
+
+        2)'y' is RIGHT child of 'z' and 'x' is RIGHT child of 'y'
+            - LEFT ROTATE 'z'
+
+        3)'y' is LEFT child of 'z' and 'x' is RIGHT child of 'y'
+            - LEFT ROTATE 'y'
+            - RIGHT ROTATE 'z'
+
+        4)'y' is RIGHT child of 'z' and 'x' is LEFT child of 'y'
+            - RIGHT ROTATE 'y'
+            - LEFT ROTATE 'z'
+        
+        """
+
         if not curr or curr.val not in self:
-            return
+            raise ValueError("No such node exists")
+        
+
         node_list = self.path_to(curr)
+        
         for i in range(len(node_list)-1, -1, -1):
             node = node_list[i]
+            
+
             balance_factor = abs(self.getHeight(node.left) - self.getHeight(node.right))
 
             if balance_factor > self.k :
-                print(node, [node.val for node in node_list])
+                self.rotations+=1
                 z = node
                 y = node_list[i+1] if (i+1 < len(node_list))  else z.left or z.right
                 x = node_list[i+2] if (i+2 < len(node_list))  else y.left or y.right
 
                 if z.left == y and y.left == x:
-                    self.right_rot(z)
+                    # self.right_rot(z)
+                    z.right_rot()
 
                 if z.left == y and y.right == x:
-                    self.left_rot(y)
-                    self.right_rot(z)
+                    # self.left_rot(y)
+                    # self.right_rot(z)
+                    y.left_rot()
+                    z.right_rot()
                     
                 if z.right == y and y.left == x:
-                    self.right_rot(y)
-                    self.left_rot(z)
+                    # self.right_rot(y)
+                    # self.left_rot(z)
+                    y.right_rot()
+                    z.left_rot()
 
                 if z.right == y and y.right == x:
-                    self.left_rot(z)
+                    # self.left_rot(z)
+                    z.left_rot()
+                self.height = AVL.getHeight(self.root)
                 
     def delete(self, data):
         curr = self.get_parent(self.find(data))
@@ -83,29 +135,6 @@ class AVL(BST):
         z.left = x.right
         x.right = z
 
-    def balance_levels(self):
-        Q = [self.root]
-        while Q:
-            # print(Q)
-            curr = Q.pop(0)
-            if curr is not None:
-                curr.level = self.getHeight(curr)
-                Q.append(curr.left)
-                Q.append(curr.right)
-
         
-
-
-if __name__ == "__main__":
-    import random
-    a=[4,2,1,3,7,6,8]
-    a=[1,2,3,4]
-    a=range(10)
-    a=[random.randint(1, 20) for _ in range(10)]
-    a=[21,26,30,9,4,14,28,18,15,10,2,3,7]
-    avl = AVL()
-    for i in a:
-        avl.insert(i)
-        avl.show_tree()
 
     
