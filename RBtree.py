@@ -1,33 +1,37 @@
-from TreeNode import TreeNode
 from BinarySearchTree import BST
+from RBNode import RBNode
 from AVLtree import AVL
 import random
-class RBNode(TreeNode):
-    def __init__(self, data):
-        super().__init__(data)
-        self.color = True # True refers to as RED 
-
-    def __str__(self):
-        return f"<RBNode {str(self.val)} Color: {'RED' if self.color else 'BLACK'}>"
 
 
 class RB(BST):
     def __init__(self, args = None):
         self.rotations = 0
         self.coloring = 0
-        self.b_height = -1
         super().__init__(args, RBNode)
 
     @property
     def title(self):
         return f"Height : {self.height}     Rotations : {self.rotations} \n Recoloring : {self.coloring}     Black Height : {self.b_height}"
 
+    @property
+    def b_height(self):
+        curr = self.root
+        bh = -1
+        while(curr):
+            bh += not curr.color
+            curr = curr.left
+
+        return bh
+
+
+            
     
     def insert(self, data):
         new_node = super().insert(data)
         self.balance(new_node)
     
-    def balance(self, node):
+    def balance(self, node):   
 
         if node is self.root:
             node.color = False
@@ -42,12 +46,15 @@ class RB(BST):
         gparent = self.get_grandparent(node)
 
         if uncle and uncle.color: #If uncle is RED
+            self.coloring+=1   
             uncle.color = not uncle.color
             parent.color = not parent.color
             gparent.color = not gparent.color
-            return self.balance(gparent)
+            self.balance(gparent)
         
-        if gparent:    
+        else: 
+            self.rotations+=1
+            self.coloring+=1   
             if gparent.val > node.val and gparent.left.val > node.val:
                 # LL
                 gparent.right_rot()
@@ -70,8 +77,8 @@ class RB(BST):
         path = self.path_to(node)
         if len(path) < 3:
             return None
-        gparent = path[-2]
-        parent = path[-3]
+        gparent = path[-3]
+        parent = path[-2]
         
         if gparent.left == parent:
             return gparent.right

@@ -452,6 +452,8 @@ class BST:
 
     def __onclick__(self, event, pos):
         # Get x and y coordinates of the click
+        if not event.xdata or not event.ydata:
+            return
         x = int(round(event.xdata))
         y = int(round(event.ydata))
         coords = list(pos.values())
