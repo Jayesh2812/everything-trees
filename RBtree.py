@@ -31,7 +31,14 @@ class RB(BST):
         new_node = super().insert(data)
         self.balance(new_node)
     
-    def balance(self, node):   
+    def balance(self, node):
+        """
+            1. If node is root color it black EXIT
+            2. If node's parent is black EXIT
+            3. If node's uncle is red recolor parent, uncle, grandparent and recheck for grandparent
+            4. If node's uncle is NULL or black do appropriate rotations 
+                according to cases and recolor parent and grandparent
+        """
 
         if node is self.root:
             node.color = False

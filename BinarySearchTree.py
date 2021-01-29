@@ -48,7 +48,7 @@ class BST:
         self.height = BST.getHeight(self.root)
         return new_node  
 
-    def delete(self,data):
+    def delete(self,data, parent_node=None):
         """
             Delete the node specified  value if present
         """
@@ -62,7 +62,8 @@ class BST:
         # If node is leaf node
             # get the parent and set the parent's pointer to current node as None
         if curr.is_leaf():
-            parent = self.get_parent(curr)
+
+            parent = parent_node if parent_node else self.get_parent(curr)
             if parent :
                 if parent.left:
                     if parent.left.val == curr.val:
@@ -85,36 +86,23 @@ class BST:
             successor = self.get_successor(curr)
             successor_parent = self.get_parent(successor)
 
-            # if successor_parent is the node to be deleted then
-            if successor.is_leaf():
-                if successor_parent.left == successor:
-                    successor_parent.left = None
-                else:
-                    successor_parent.right = None
-                curr.swap(successor)
+            if successor_parent == curr:
+                curr.right = successor.right
 
-
-            elif successor_parent == curr:
-                successor.left = curr.left
-                curr.left = None
-                if curr == self.root:
-                    self.root = successor
-                else:
-                    self.get_parent(curr).right = successor
+            else:
+                successor_parent.left = successor.right
                 
+            curr.swap(successor)
 
-            
         # The node to be deleted has a single child
         else : 
-            parent = self.get_parent(curr)
             child = curr.right if curr.right else curr.left
-            if parent :
-                if parent.left == curr:
-                    parent.left = child
-                else :
-                    parent.right = child
-            else :
-                self.root = child
+            curr.swap(child)
+
+            curr.left = child.left
+            curr.right = child.right
+
+
         del curr
         self.height = BST.getHeight(self.root)
 
@@ -452,6 +440,7 @@ class BST:
 
     def __onclick__(self, event, pos):
         # Get x and y coordinates of the click
+        import matplotlib.pyplot as plt
         if not event.xdata or not event.ydata:
             return
         x = int(round(event.xdata))
@@ -467,14 +456,17 @@ class BST:
                 if self.__confirm__(node.val):
                     self.delete(node.val)
                     self.show_tree()
+                    plt.show()
             else:
                 new_data = self.__gui_input__()
                 if new_data:
                     self.insert(new_data)
                     self.show_tree()
+                    plt.show()
         else:
             if node:
                 print(node.val)
+                print(self.inorderTraversal())
     
     @staticmethod
     def __gui_input__():
