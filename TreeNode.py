@@ -57,26 +57,6 @@ class TreeNode:
     def __hash__(self):
         return self.val
 
-    def left_rot(self):
-
-        y = self.right
-        x = self.right.right
-        self.swap(y)
-        t = self.left
-        self.right = x
-        self.left = y
-        y.right = y.left
-        y.left = t
-
-
-    def right_rot(self):
-        y = self.left
-        x = self.left.left
-
-        self.swap(y)
-        t = self.right
-        self.left = x
-        self.right = y
-        y.left = y.right
-        y.right = t
-
+    def get_child(self):
+        if not self.is_leaf():
+            return self.right if self.right else self.left

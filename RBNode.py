@@ -5,8 +5,7 @@ class RBNode(TreeNode):
         self.color = True # True refers to as RED 
 
     def __str__(self):
-        return f"<RBNode {str(self.val)} Color: {'RED' if self.color else 'BLACK'}>"
+        return f"<RBNode Data: {str(self.val)} Color: {'RED' if self.color else 'BLACK'}>"
 
-    def swap(self, other):
-        super().swap(other)
-        self.color, other.color = other.color, self.color
+    def recolor(self):
+        self.color = not self.color

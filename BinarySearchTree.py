@@ -1,10 +1,9 @@
-
-
-
 from TreeNode import TreeNode as Node
 class BST:
     """
         Binary Search tree implementation 
+
+
     """
     def __init__(self, args=None, Node=Node):
         self.root = None
@@ -48,22 +47,20 @@ class BST:
         self.height = BST.getHeight(self.root)
         return new_node  
 
-    def delete(self,data, parent_node=None):
+    def delete(self, data):
         """
-            Delete the node specified  value if present
+            Delete the node specified value if present
         """
-
-        if data not in self:
+        if data not in self :
             raise ValueError("No such node exists")
         # Locate the necessary node
-        curr = self.find(data)
-
+        curr = self.find(data)  
 
         # If node is leaf node
             # get the parent and set the parent's pointer to current node as None
         if curr.is_leaf():
-
-            parent = parent_node if parent_node else self.get_parent(curr)
+            print(curr, "is leaf")
+            parent = self.get_parent(curr)
             if parent :
                 if parent.left:
                     if parent.left.val == curr.val:
@@ -82,29 +79,73 @@ class BST:
 
 
         elif curr.left and curr.right :
-
+            
             successor = self.get_successor(curr)
-            successor_parent = self.get_parent(successor)
+            print(curr, "has two childs , inorder successor", successor)
+            # successor_parent = self.get_parent(successor)
 
-            if successor_parent == curr:
-                curr.right = successor.right
+            # if successor_parent == curr:
+            #     curr.right = successor.right
 
-            else:
-                successor_parent.left = successor.right
-                
+            # else:
+            #     successor_parent.left = successor.right
+            self.delete(data)
             curr.swap(successor)
 
         # The node to be deleted has a single child
         else : 
+            print(curr, "has one node")
+
+            parent = self.get_parent(curr)
             child = curr.right if curr.right else curr.left
-            curr.swap(child)
+            if parent:
+                if parent.left == curr:
+                    parent.left = child
+                    
+                else:
+                    parent.right = child
 
-            curr.left = child.left
-            curr.right = child.right
-
+            else:
+                self.root = child
 
         del curr
-        self.height = BST.getHeight(self.root)
+        self.height = self.getHeight(self.root)
+    
+    def left_rot(self, z):
+        """
+            Rotate left the given node 
+        """
+        # Assign z's position to x 
+        # Set z.right = x.left and x.left = z
+        x = z.right
+        z_parent = self.get_parent(z)
+        if z_parent:
+            if z_parent.left == z:
+                z_parent.left = x
+            else:
+                z_parent.right = x
+        else:
+            self.root = x 
+        z.right = x.left
+        x.left = z
+
+    def right_rot(self, z):
+        """
+            Rotate right the given node 
+        """
+        # Assign z's position to x 
+        # Set z.left = x.right and x.right = z
+        x = z.left
+        z_parent = self.get_parent(z)
+        if z_parent:
+            if z_parent.left == z:
+                z_parent.left = x
+            else:
+                z_parent.right = x
+        else:
+            self.root = x 
+        z.left = x.right
+        x.right = z
 
     def get_successor(self, node):
         """ 
@@ -166,8 +207,7 @@ class BST:
         """
             Returns node metadata of given data value
         """
-        if data not in self:
-            raise ValueError("No such node exists")
+
         curr = self.root
         while curr:
             if curr.val < data:
@@ -176,6 +216,7 @@ class BST:
                 curr = curr.left
             elif curr.val == data:
                 return curr
+        raise ValueError("No such node exists")
  
     def path_to(self,node):
         """
@@ -413,6 +454,7 @@ class BST:
         # plt.close()
         fig, ax= plt.subplots()
 
+
         # Matplotlib Event Listener for quick deletion and insertion on the go
         fig.canvas.mpl_connect('button_press_event', lambda e:self.__onclick__(e, pos))
         
@@ -428,14 +470,15 @@ class BST:
         # Delete the placeholder
         pos['X'] =''
         del pos['X']
+        import networkx as nx
+
         T = nx.DiGraph()
         T.add_nodes_from(pos)
 
-        nx.draw(T,pos, node_size=700,
-                node_color="#ffffff",edgecolors="#000000", 
-                linewidths=1)
+        nx.draw(T,pos, node_size=700, node_color="#ffffff",edgecolors="#000000", linewidths=1)
 
         nx.draw_networkx_edges(T, pos, edges, min_target_margin=13, min_source_margin=13)
+
         nx.draw_networkx_labels(T, pos, { p : p.val for p in pos})
 
     def __onclick__(self, event, pos):

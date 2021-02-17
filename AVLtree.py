@@ -54,9 +54,9 @@ class AVL(BST):
         """
 
         if not curr or curr.val not in self:
-            raise ValueError("No such node exists")
+            return
         
-
+        print(curr)
         node_list = self.path_to(curr)
         
         for i in range(len(node_list)-1, -1, -1):
@@ -72,24 +72,18 @@ class AVL(BST):
                 x = node_list[i+2] if (i+2 < len(node_list))  else y.left or y.right
 
                 if z.left == y and y.left == x:
-                    # self.right_rot(z)
-                    z.right_rot()
+                    self.right_rot(z)
 
                 if z.left == y and y.right == x:
-                    # self.left_rot(y)
-                    # self.right_rot(z)
-                    y.left_rot()
-                    z.right_rot()
+                    self.left_rot(y)
+                    self.right_rot(z)
                     
                 if z.right == y and y.left == x:
-                    # self.right_rot(y)
-                    # self.left_rot(z)
-                    y.right_rot()
-                    z.left_rot()
+                    self.right_rot(y)
+                    self.left_rot(z)
 
                 if z.right == y and y.right == x:
-                    # self.left_rot(z)
-                    z.left_rot()
+                    self.left_rot(z)
                 self.height = AVL.getHeight(self.root)
                 
     def delete(self, data):
@@ -97,44 +91,5 @@ class AVL(BST):
         super().delete(data)
         self.balance(curr)
 
-    def left_rot(self, z):
-        """
-            Rotate left the given node 
-        """
-        # Assign z's position to x 
-        # Set z.right = x.left and x.left = z
-        x = z.right
-        z_parent = self.get_parent(z)
-        if z_parent:
-            if z_parent.left == z:
-                z_parent.left = x
-            else:
-                z_parent.right = x
-        else:
-            self.root = x 
-        z.right = x.left
-        x.left = z
-
-        self.height = AVL.getHeight(self.root)
-
-    def right_rot(self, z):
-        """
-            Rotate right the given node 
-        """
-        # Assign z's position to x 
-        # Set z.left = x.right and x.right = z
-        x = z.left
-        z_parent = self.get_parent(z)
-        if z_parent:
-            if z_parent.left == z:
-                z_parent.left = x
-            else:
-                z_parent.right = x
-        else:
-            self.root = x 
-        z.left = x.right
-        x.right = z
-
-        
 
     
