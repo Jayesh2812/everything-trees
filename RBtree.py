@@ -17,7 +17,7 @@ class RB(BST):
     @property
     def b_height(self):
         curr = self.root
-        bh = -1
+        bh = 0
         while(curr):
             bh += not curr.color
             curr = curr.left
